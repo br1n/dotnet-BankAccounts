@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] =  "My Account";
+}
+@model List<Transaction>
+<h1>Wecome, @ViewBag.User.FirstName !</h1>
+<a href="/logout">Logout</a>
+<hr>
+<table class="bank-table">
+    <thead>
+        <tr>
+            <th>Amount</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model)
+        {
+            <tr>
+                <td> $@transaction.Amount </td>
+                <td> @transaction.CreatedAt </td>
+            </tr>
+        }
+    </tbody>
+</table>
