@@ -2,16 +2,16 @@
     ViewData["Title"] =  @ViewBag.User.FirstName + "'s Account";
 }
 @model Transaction
-<h1>Wecome, @ViewBag.User.FirstName !</h1>
+<h1>Wecome, @ViewBag.User.FirstName!</h1>
 <a href="/logout">Logout</a>
-<br>
-<h3>Current Balance: $ @ViewBag.User.Balance </h3>
 <hr>
+<h3>Current Balance: $ @ViewBag.User.Balance </h3>
+<p>@ViewBag.Error</p>
 <form asp-action="CreateTransaction" asp-controller="Account" method="POST">
     <span asp-validation-for="Amount"></span>
     <label asp-for="Amount">Amount: </label>
-    <input asp-for="Amount">
-    <button type="submit">Submit</button>
+    <input asp-for="Amount" placeholder = "$" >
+    <button type="submit">Deposit/Withdraw</button>
 </form>
 <br>
 <table class="Account-Table">

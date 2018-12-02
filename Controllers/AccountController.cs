@@ -14,7 +14,6 @@ namespace BankAccounts.Controllers
 {
     public class AccountController : Controller
     {
-
         public MainUser ActiveUser
         //produces ActiveUser object that matches that of SessionUser
         {
@@ -28,10 +27,10 @@ namespace BankAccounts.Controllers
             dbContext = context;
         }
 
-        [HttpGet("account/{id}")]
-        public IActionResult Index(int id)
+        [HttpGet("account/{user_Id}")]
+        public IActionResult Index(int user_Id)
         {
-            //check if User is Actively in Session
+            //validates if user logged in
             if(ActiveUser == null)
             {
                 return RedirectToAction("Register", "Home");
@@ -49,6 +48,8 @@ namespace BankAccounts.Controllers
         [HttpPost("transaction")]
         public IActionResult CreateTransaction(Transaction newTrans) 
         {
+            MainUser transUser = ActiveUser;
+
             if(ActiveUser == null)
             {
                 return RedirectToAction("Register", "Home");
@@ -56,12 +57,24 @@ namespace BankAccounts.Controllers
 
             if(ModelState.IsValid)
             {
-                dbContext.Transactions.Add(newTrans);
-                dbContext.SaveChanges();
-                return RedirectToAction("");
+                if(newTrans.Amount + transUser.Balance > 0)
+                {
+                    // specifies UserId
+                    newTrans.UserId = transUser.UserId;
+                    int? user_Id = newTrans.UserId;
+                    // Add Transaction
+                    dbContext.Transactions.Add(newTrans);
+                    dbContext.SaveChanges();
+
+                    return Redirect($"account/{user_Id}");
+                }
+                else
+                {
+                    ViewBag.Error = "Insufficient Funds";
+                }
             }
-            var myUser = ActiveUser;
-            ViewBag.User = myUser;
+            // var myUser = ActiveUser;
+            ViewBag.User = transUser;
             ViewBag.Transactions = dbContext.Transactions
                 .OrderByDescending(t => t.CreatedAt)
                 .Where(t => t.UserId == ActiveUser.UserId);

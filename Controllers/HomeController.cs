@@ -14,6 +14,12 @@ namespace BankAccounts.Controllers
 {
     public class HomeController : Controller
     {
+        public MainUser ActiveUser
+        //produces ActiveUser object that matches that of SessionUser
+        {
+            get { return dbContext.Users.Include(u => u.Transactions)
+            .FirstOrDefault(u => u.UserId == HttpContext.Session.GetInt32("user_Id")); }
+        }
         private MyContext dbContext;
         public HomeController(MyContext context)
         {
@@ -23,6 +29,12 @@ namespace BankAccounts.Controllers
         [HttpGet("")]
         public IActionResult Register()
         {
+            if(ActiveUser != null)
+            {
+                int? user_Id = ActiveUser.UserId;
+                return Redirect($"account/{user_Id}");;
+            }
+
             return View();
         }
 
@@ -46,7 +58,8 @@ namespace BankAccounts.Controllers
                 newUser.Password = hashedPw;
 
                 //add new user to DB
-                var newUserAdded = dbContext.Users.Add(newUser).Entity;
+                var newUserAdded = dbContext.Users
+                .Add(newUser).Entity;
                 dbContext.SaveChanges();
 
                 //log user into session
@@ -60,6 +73,13 @@ namespace BankAccounts.Controllers
         [HttpGet("login")]
         public IActionResult Login()
         {
+            //denies access to if user in session 
+            if(ActiveUser != null)
+            {
+                int? user_Id = ActiveUser.UserId;
+                return Redirect($"account/{user_Id}");;
+            }
+
             return View("Login");
         }
 
